@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private lateinit var soundMap: Map<Int, Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         tts = TextToSpeech(this, this)
 
@@ -78,12 +80,26 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 @Composable
 fun AuralLearnerApp(tts: TextToSpeech, soundPool: SoundPool, soundMap: Map<Int, Int>) {
     var selectedTab by remember { mutableStateOf(0) }
-    Column(modifier = Modifier.fillMaxSize()) {
-        TabRow(selectedTabIndex = selectedTab) {
-            Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Intervals") })
-            Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Chords") })
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    icon = { Text("♪", style = MaterialTheme.typography.titleLarge) },
+                    label = { Text("Intervals") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    icon = { Text("♬", style = MaterialTheme.typography.titleLarge) },
+                    label = { Text("Chords") }
+                )
+            }
         }
-        Box(modifier = Modifier.weight(1f)) {
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (selectedTab) {
                 0 -> IntervalTrainerUI(tts, soundPool, soundMap)
                 1 -> ChordTrainerUI(tts, soundPool, soundMap)
@@ -130,7 +146,6 @@ fun IntervalTrainerUI(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
         Text("Interval Trainer", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -242,7 +257,6 @@ fun ChordTrainerUI(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
         Text("Chord Trainer", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
